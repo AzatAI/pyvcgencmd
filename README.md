@@ -15,7 +15,7 @@ Still experimental.
 ## How to use   
 Quick example:  
 ``` python
-from pyvcgencmd import Vcmd
+from pyvcgencmd.models import Vcmd
 ```
 
 ## How to contribute    
