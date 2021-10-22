@@ -12,7 +12,7 @@
 __title__ = 'pyvcgencmd'
 __description__ = 'Python Wrapper for BCM (Raspberry Pi) vcgencmd'
 __url__ = 'https://github.com/AzatAI/vcgencmd'
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __author__ = 'Yaakov Azat'
 __author_email__ = 'yaakovazat@gmail.com'
 __license__ = 'MIT'

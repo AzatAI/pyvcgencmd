@@ -14,7 +14,6 @@ about = {}  # create a empty dictionary to store the content of the __version__.
 with open(os.path.join(here, "pyvcgencmd", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), about)
 
-
 # 'setup.py publish' shortcut.
 if sys.argv[-1] == "publish":
     os.system("python setup.py sdist")
@@ -23,11 +22,14 @@ if sys.argv[-1] == "publish":
     os.system("rm -rf *.egg-info")
     sys.exit()
 
+if sys.argv[-1] == "publishwin":
+    os.system("python3 setup.py sdist")
+    os.system("twine upload dist/*")
+    os.system("rm dist")
+    os.system("rm *.egg-info")
+    sys.exit()
 
 requires = ["pydantic", "psutil"]
-
-
-
 
 with open("README.md", "r", "utf-8") as f:
     readme = f.read()
@@ -66,7 +68,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     project_urls={
-        "Documentation": "https://azat.ai",
+        "Documentation": "https://github.com/AzatAI/pyvcgencmd",
         "Source": "https://github.com/AzatAI/pyvcgencmd",
     },
 )

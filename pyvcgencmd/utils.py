@@ -9,8 +9,8 @@ def check_file_exist(file):
         return False
 
 
-def check_dir_exist(dir):
-    if os.path.isdir(dir):
+def check_dir_exist(a_dir):
+    if os.path.isdir(a_dir):
         return True
     else:
         return False
