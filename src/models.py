@@ -2,7 +2,7 @@
 import subprocess
 import shlex
 import re
-from typing import Dict, List
+from typing import Dict, List, Union
 from datetime import datetime
 
 # to check space and memory
@@ -12,7 +12,7 @@ import psutil
 # pydantic imports
 from pydantic import BaseModel
 
-"""TODO
+"""
 
 camera          get_camera
 state           get_throttled
@@ -79,13 +79,13 @@ class GpuMemory(BaseModel):
 
 
 class Config(BaseModel):
-    config: Dict[str, bytes]
+    config: Dict[str, Union[bytes, int]]
 
 
 class Space(BaseModel):
     total: int
     used: int
-    unused: int
+    free: int
 
 
 class Memory(BaseModel):
@@ -155,6 +155,64 @@ class Vcmd:
             **{key: val for i, key in enumerate(Temperature.__fields__.keys())}
         )
         # arm_clock
+        val = self.__arm_clock()
+        self.arm_clock = ArmClock(
+            **{key: val for i, key in enumerate(ArmClock.__fields__.keys())}
+        )
+        # core_clock
+        val = self.__core_clock()
+        self.core_clock = CoreClock(
+            **{key: val for i, key in enumerate(CoreClock.__fields__.keys())}
+        )
+        # serial_clock
+        val = self.__serial_clock()
+        self.serial_clock = SerialClock(
+            **{key: val for i, key in enumerate(SerialClock.__fields__.keys())}
+        )
+        # storage_clock
+        val = self.__storage_clock()
+        self.storage_clock = StorageClock(
+            **{key: val for i, key in enumerate(StorageClock.__fields__.keys())}
+        )
+        # voltage
+        val = self.__voltage()
+        self.voltage = Voltage(
+            **{key: val for i, key in enumerate(Voltage.__fields__.keys())}
+        )
+        # otp
+        val = self.__otp()
+        self.otp = val
+
+        # cpu_memory
+        val = self.__cpu_memory()
+        self.cpu_memory = CpuMemory(
+            **{key: val for i, key in enumerate(CpuMemory.__fields__.keys())}
+        )
+        # gpu_memory
+        val = self.__gpu_memory()
+        self.cpu_memory = GpuMemory(
+            **{key: val for i, key in enumerate(GpuMemory.__fields__.keys())}
+        )
+        # config
+        val = self.__config()
+        self.config = val
+
+        # extra
+        # space
+        total, used, free = self.__space()
+        val = [total, used, free]
+        self.space = Space(
+            **{**{key: val[i] for i, key in enumerate(Space.__fields__.keys())}}
+        )
+        # memory
+        val = self.__memory()
+        self.memory = Memory(
+            total=val.total,
+            available=val.available,
+            percent=val.percent,
+            used=val.used,
+            free=val.free,
+        )
 
     def __run_cmd(self, cmd):
         args = shlex.split(cmd)
@@ -189,33 +247,63 @@ class Vcmd:
     def __arm_clock(self):
         cmd = "measure_clock arm"
         out = self.__run_cmd(cmd)
+        out = out.split("=")[1]
         return out
 
     def __core_clock(self):
         cmd = "measure_clock core"
         out = self.__run_cmd(cmd)
+        out = out.split("=")[1]
         return out
 
     def __serial_clock(self):
         cmd = "measure_clock uart"
         out = self.__run_cmd(cmd)
+        out = out.split("=")[1]
         return out
 
     def __storage_clock(self):
         cmd = "measure_clock emmc"
         out = self.__run_cmd(cmd)
+        out = out.split("=")[1]
         return out
 
     def __voltage(self):
         cmd = "measure_volts"
         out = self.__run_cmd(cmd)
+        out = out.split("=")[1].replace("V", "")
         return out
 
     def __otp(self):
-        cmd = "measure_volts"
+        cmd = "otp_dump"
         out = self.__run_cmd(cmd)
+        out = out.split("\n")
+        out = {(each.split(":"))[0]: ("0x" + (each.split(":"))[1]) for each in out}
         return out
 
+    def __cpu_memory(self):
+        cmd = "get_mem arm"
+        out = self.__run_cmd(cmd)
+        out = out.split("=")[1].replace("M", "")
+        return out
 
-vcmd = Vcmd()
-print(vcmd.state)
+    def __gpu_memory(self):
+        cmd = "get_mem gpu"
+        out = self.__run_cmd(cmd)
+        out = out.split("=")[1].replace("M", "")
+        return out
+
+    def __config(self):
+        cmd = "get_config int"
+        out = self.__run_cmd(cmd)
+        out = out.split("\n")
+        out = {(each.split("="))[0]: (each.split("="))[1] for each in out}
+        return out
+
+    # external
+    def __space(self):
+        return check_disk_usage()
+
+    def __memory(self):
+        return psutil.virtual_memory()
+
