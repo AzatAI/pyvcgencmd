@@ -9,6 +9,11 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+about = {}  # create a empty dictionary to store the content of the __version__.py file
+# execute the __version__.py file and get the content, save to the dictionary about.
+with open(os.path.join(here, "pyvcgencmd", "__version__.py"), "r", "utf-8") as f:
+    exec(f.read(), about)
+
 
 # 'setup.py publish' shortcut.
 if sys.argv[-1] == "publish":
@@ -22,16 +27,13 @@ if sys.argv[-1] == "publish":
 requires = ["pydantic", "psutil"]
 
 
-about = {}  # create a empty dictionary to store the content of the __version__.py file
-# execute the __version__.py file and get the content, save to the dictionary about.
-with open(os.path.join(here, "src", "__version__.py"), "r", "utf-8") as f:
-    exec(f.read(), about)
+
 
 with open("README.md", "r", "utf-8") as f:
     readme = f.read()
 
 setup(
-    name=about["__title__"],
+    name="pyvcgencmd",
     version=about["__version__"],
     description=about["__description__"],
     long_description=readme,
