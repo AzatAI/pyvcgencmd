@@ -6,7 +6,7 @@ from typing import Dict, List, Union
 from datetime import datetime
 
 # to check space and memory
-from utils import check_disk_usage
+from .utils import check_disk_usage
 import psutil
 
 # pydantic imports
